@@ -19,33 +19,58 @@ package com.joeparker.pawprint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.LiveData
+import com.joeparker.pawprint.data.PawPrintDatabase
+import com.joeparker.pawprint.data.entity.Entry
+import com.joeparker.pawprint.data.repository.EntryRepository
 import com.joeparker.pawprint.ui.components.RallyTopAppBar
+import com.joeparker.pawprint.ui.overview.OverviewViewModel
+import com.joeparker.pawprint.ui.overview.OverviewViewModelFactory
 import com.joeparker.pawprint.ui.theme.RallyTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * This Activity recreates part of the Rally Material Study from
  * https://material.io/design/material-studies/rally.html
  */
 class RallyActivity : ComponentActivity() {
+    // Using by lazy so the database and the repository are only created when they're needed
+    // rather than when the application starts
+    val database by lazy { PawPrintDatabase.getDatabase(this) }
+    val repository by lazy { EntryRepository(database.entryDAO()) }
+
+    private val viewModel: OverviewViewModel by viewModels {
+        OverviewViewModelFactory(repository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            RallyApp()
+
+        viewModel.allEntries.observe(this) { entries ->
+            setContent {
+                RallyApp(entries)
+            }
         }
     }
 }
 
 @Composable
-fun RallyApp() {
+fun RallyApp(entries: List<Entry>) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -59,6 +84,11 @@ fun RallyApp() {
             }
         ) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
+                Column {
+                    entries.forEach {
+                        Text(it.notes ?: "no Notes")
+                    }
+                }
                 currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
             }
         }
