@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.joeparker.pawprint.data.dao.EntryDAO
 import com.joeparker.pawprint.data.entity.Entry
 import kotlinx.coroutines.runBlocking
@@ -13,7 +14,10 @@ import java.util.*
     entities = [
         Entry::class
     ],
-    version = 1
+    version = 2
+)
+@TypeConverters(
+    com.joeparker.pawprint.util.TypeConverters::class
 )
 abstract class PawPrintDatabase : RoomDatabase() {
 
@@ -59,9 +63,18 @@ abstract class PawPrintDatabase : RoomDatabase() {
             entryDAO.deleteAll()
 
             // Add sample entries.
-            var entry = Entry(UUID.randomUUID().toString(), "Some notes")
+            var entry = Entry(
+                id = UUID.randomUUID().toString(),
+                notes = "Some notes",
+                timestamp = Date()
+            )
             entryDAO.insert(entry)
-            entry = Entry(UUID.randomUUID().toString(), "Some other notes")
+
+             entry = Entry(
+                 id = UUID.randomUUID().toString(),
+                 notes = "Some other notes",
+                 timestamp = Date()
+             )
             entryDAO.insert(entry)
         }
     }

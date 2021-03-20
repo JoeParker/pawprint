@@ -31,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.LiveData
 import com.joeparker.pawprint.data.PawPrintDatabase
 import com.joeparker.pawprint.data.entity.Entry
 import com.joeparker.pawprint.data.repository.EntryRepository
@@ -39,10 +38,6 @@ import com.joeparker.pawprint.ui.components.RallyTopAppBar
 import com.joeparker.pawprint.ui.overview.OverviewViewModel
 import com.joeparker.pawprint.ui.overview.OverviewViewModelFactory
 import com.joeparker.pawprint.ui.theme.RallyTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 
 /**
  * This Activity recreates part of the Rally Material Study from
@@ -51,8 +46,8 @@ import kotlinx.coroutines.launch
 class RallyActivity : ComponentActivity() {
     // Using by lazy so the database and the repository are only created when they're needed
     // rather than when the application starts
-    val database by lazy { PawPrintDatabase.getDatabase(this) }
-    val repository by lazy { EntryRepository(database.entryDAO()) }
+    private val database by lazy { PawPrintDatabase.getDatabase(this) }
+    private val repository by lazy { EntryRepository(database.entryDAO()) }
 
     private val viewModel: OverviewViewModel by viewModels {
         OverviewViewModelFactory(repository)
@@ -87,6 +82,7 @@ fun RallyApp(entries: List<Entry>) {
                 Column {
                     entries.forEach {
                         Text(it.notes ?: "no Notes")
+                        Text(it.timestamp?.toString() ?: "no Date")
                     }
                 }
                 currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
