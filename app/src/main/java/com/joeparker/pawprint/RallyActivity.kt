@@ -23,13 +23,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.joeparker.pawprint.data.PawPrintDatabase
 import com.joeparker.pawprint.data.entity.Entry
@@ -38,6 +34,8 @@ import com.joeparker.pawprint.ui.components.RallyTopAppBar
 import com.joeparker.pawprint.ui.overview.OverviewViewModel
 import com.joeparker.pawprint.ui.overview.OverviewViewModelFactory
 import com.joeparker.pawprint.ui.theme.RallyTheme
+import kotlinx.coroutines.runBlocking
+import java.util.*
 
 /**
  * This Activity recreates part of the Rally Material Study from
@@ -58,14 +56,14 @@ class RallyActivity : ComponentActivity() {
 
         viewModel.allEntries.observe(this) { entries ->
             setContent {
-                RallyApp(entries)
+                RallyApp(entries, add = { runBlocking { viewModel.add(Entry(UUID.randomUUID().toString(), if (it.isEmpty()) null else it, Date())) } })
             }
         }
     }
 }
 
 @Composable
-fun RallyApp(entries: List<Entry>) {
+fun RallyApp(entries: List<Entry>, add: (String) -> Unit) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -80,13 +78,34 @@ fun RallyApp(entries: List<Entry>) {
         ) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
                 Column {
+                    AddEntryButton(add)
                     entries.forEach {
                         Text(it.notes ?: "no Notes")
                         Text(it.timestamp?.toString() ?: "no Date")
                     }
                 }
-                currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
+                //currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
             }
         }
+    }
+}
+
+@Composable
+fun AddEntryButton(add: (String) -> Unit) {
+    var text by remember { mutableStateOf("") }
+
+    Button(onClick = { add(text) }) {
+        TextField(
+            value = text,
+            onValueChange = {
+                if (it.isNotEmpty() && it.last() == '\n') {
+                    add(text)
+                } else {
+                    text = it
+                }
+            },
+            label = { Text("Notes") }
+        )
+        Text("ADD ENTRY")
     }
 }

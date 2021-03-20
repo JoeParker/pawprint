@@ -19,6 +19,8 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
     fun insert(entry: Entry) = viewModelScope.launch {
         repository.insert(entry)
     }
+
+    suspend fun add(entry: Entry) = repository.insert(entry)
 }
 
 /**

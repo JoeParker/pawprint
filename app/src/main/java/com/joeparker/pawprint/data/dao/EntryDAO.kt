@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EntryDAO {
-    @Query("SELECT * FROM entry")
+    @Query("SELECT * FROM entry ORDER BY timestamp DESC")
     fun findAll(): Flow<List<Entry>>
 
     @Query("SELECT * FROM entry WHERE id IN (:entryIds)")

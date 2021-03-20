@@ -43,10 +43,10 @@ abstract class PawPrintDatabase : RoomDatabase() {
                 .build()
 
                 // Populate dummy data
-                DataSeeder(
-                    entryDAO = instance.entryDAO()
-                )
-                .seed()
+//                DataSeeder(
+//                    entryDAO = instance.entryDAO()
+//                )
+//                .seed()
 
                 INSTANCE = instance
                 // return instance
