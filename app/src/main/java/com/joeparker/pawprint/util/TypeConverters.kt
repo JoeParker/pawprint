@@ -1,6 +1,7 @@
 package com.joeparker.pawprint.util
 
 import androidx.room.TypeConverter
+import com.joeparker.pawprint.data.constant.EntryType
 import java.util.*
 
 class TypeConverters {
@@ -16,4 +17,13 @@ class TypeConverters {
     fun dateToTimestamp(date: Date?): Long? {
         return date?.time
     }
+
+    /**
+     * Allow us to store EntryType columns in the database
+     */
+    @TypeConverter
+    fun toEntryType(value: String) = enumValueOf<EntryType>(value)
+
+    @TypeConverter
+    fun fromEntryType(value: EntryType) = value.name
 }

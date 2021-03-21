@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.joeparker.pawprint.data.constant.EntryType
 import com.joeparker.pawprint.data.dao.EntryDAO
 import com.joeparker.pawprint.data.entity.Entry
 import kotlinx.coroutines.runBlocking
@@ -14,7 +15,7 @@ import java.util.*
     entities = [
         Entry::class
     ],
-    version = 2
+    version = 1
 )
 @TypeConverters(
     com.joeparker.pawprint.util.TypeConverters::class
@@ -43,10 +44,10 @@ abstract class PawPrintDatabase : RoomDatabase() {
                 .build()
 
                 // Populate dummy data
-//                DataSeeder(
-//                    entryDAO = instance.entryDAO()
-//                )
-//                .seed()
+                DataSeeder(
+                    entryDAO = instance.entryDAO()
+                )
+                .seed()
 
                 INSTANCE = instance
                 // return instance
@@ -65,6 +66,7 @@ abstract class PawPrintDatabase : RoomDatabase() {
             // Add sample entries.
             var entry = Entry(
                 id = UUID.randomUUID().toString(),
+                type = EntryType.Sleep,
                 notes = "Some notes",
                 timestamp = Date()
             )
@@ -72,6 +74,7 @@ abstract class PawPrintDatabase : RoomDatabase() {
 
              entry = Entry(
                  id = UUID.randomUUID().toString(),
+                 type = EntryType.Wake,
                  notes = "Some other notes",
                  timestamp = Date()
              )

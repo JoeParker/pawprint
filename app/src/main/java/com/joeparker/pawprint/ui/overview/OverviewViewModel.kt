@@ -1,6 +1,7 @@
 package com.joeparker.pawprint.ui.overview
 
 import androidx.lifecycle.*
+import com.joeparker.pawprint.data.constant.EntryType
 import com.joeparker.pawprint.data.entity.Entry
 import com.joeparker.pawprint.data.repository.EntryRepository
 import kotlinx.coroutines.launch
@@ -15,6 +16,17 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
     // - Repository is completely separated from the UI through the ViewModel.
     val allEntries: LiveData<List<Entry>> = repository.allEntries.asLiveData()
 
+    fun refreshEntries() {
+        val entry = Entry(
+            id = UUID.randomUUID().toString(),
+            type = EntryType.Sleep,
+            notes = null,
+            timestamp = Date()
+        )
+        insert(entry)
+        delete(entry)
+    }
+
     /**
      * Launching a new coroutine to insert the data in a non-blocking way
      */
@@ -22,7 +34,13 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
         repository.insert(entry)
     }
 
+    fun delete(entry: Entry) = viewModelScope.launch {
+        repository.delete(entry)
+    }
+
     suspend fun add(entry: Entry) = repository.insert(entry)
+
+    suspend fun remove(entry: Entry) = repository.delete(entry)
 
     fun timeSinceLastEntry(entry: Entry?): String {
         val now = Date()

@@ -20,17 +20,23 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.joeparker.pawprint.data.PawPrintDatabase
+import com.joeparker.pawprint.data.constant.EntryType
 import com.joeparker.pawprint.data.entity.Entry
 import com.joeparker.pawprint.data.repository.EntryRepository
 import com.joeparker.pawprint.ui.components.RallyTopAppBar
@@ -61,8 +67,12 @@ class RallyActivity : ComponentActivity() {
             setContent {
                 RallyApp(
                     entries = entries,
-                    add = { runBlocking { viewModel.add(Entry(UUID.randomUUID().toString(), if (it.isEmpty()) null else it, Date())) } },
-                    timeSinceLastEntry = viewModel.timeSinceLastEntry(entries.firstOrNull())
+                    add = { runBlocking {
+                            viewModel.add(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (it.isEmpty()) null else it, Date()))
+                        }
+                    },
+                    timeSinceLastEntry = viewModel.timeSinceLastEntry(entries.firstOrNull()),
+                    refresh = { viewModel.refreshEntries() }
                 )
             }
         }
@@ -70,7 +80,7 @@ class RallyActivity : ComponentActivity() {
 }
 
 @Composable
-fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: String) {
+fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: String, refresh: () -> Unit) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -92,8 +102,17 @@ fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: St
                     Text("Time since last entry: $timeSinceLastEntry")
                     AddEntryButton(add)
                     entries.forEach {
-                        Text(it.notes ?: "no Notes")
-                        Text(it.timestamp?.toString() ?: "no Date")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(it.type.icon),
+                                contentDescription = it.type.name,
+                                modifier = Modifier.clickable(onClick = { refresh() })
+                            )
+                            Column {
+                                Text(it.notes ?: "no Notes")
+                                Text(it.timestamp?.toString() ?: "no Date")
+                            }
+                        }
                     }
                 }
                 //currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
