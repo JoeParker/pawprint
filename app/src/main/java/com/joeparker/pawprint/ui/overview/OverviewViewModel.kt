@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.joeparker.pawprint.data.constant.EntryType
 import com.joeparker.pawprint.data.entity.Entry
 import com.joeparker.pawprint.data.repository.EntryRepository
+import com.joeparker.pawprint.util.Helper
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -27,6 +28,10 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
         delete(entry)
     }
 
+    fun isAwake(entries: List<Entry>): Boolean {
+        return entries.firstOrNull { it.type == EntryType.Sleep || it.type == EntryType.Wake }?.type == EntryType.Wake
+    }
+
     /**
      * Launching a new coroutine to insert the data in a non-blocking way
      */
@@ -42,23 +47,10 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
 
     suspend fun suspendingRemove(entry: Entry) = repository.delete(entry)
 
-    fun timeSinceLastEntry(entry: Entry?): String {
+    fun timeSinceEntry(entry: Entry?): String {
         val now = Date()
         val last = entry?.timestamp ?: return "No entries found"
-        val diffInMillisec: Long = now.time - last.time
-
-        val diffInDays: Long = TimeUnit.MILLISECONDS.toDays(diffInMillisec)
-        val diffInHours: Long = TimeUnit.MILLISECONDS.toHours(diffInMillisec)
-        val diffInMin: Long = TimeUnit.MILLISECONDS.toMinutes(diffInMillisec)
-        val diffInSec: Long = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec)
-
-        val time = when {
-            (diffInDays > 1) -> "$diffInDays days ${diffInHours - (diffInDays * 24)} hours"
-            (diffInHours > 1) -> "$diffInHours hours ${diffInMin - (diffInHours * 60)} minutes"
-            (diffInMin > 1) -> "$diffInMin minutes"
-            else -> "$diffInSec seconds"
-        }
-        return "$time ago"
+        return "${Helper.timestampToReadable(now.time - last.time)} ago"
     }
 }
 

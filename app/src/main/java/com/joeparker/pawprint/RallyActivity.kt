@@ -64,7 +64,10 @@ class RallyActivity : ComponentActivity() {
                 RallyApp(
                     entries = entries,
                     addEntry = { viewModel.insert(it) },
-                    timeSinceLastEntry = viewModel.timeSinceLastEntry(entries.firstOrNull()),
+                    awake = viewModel.isAwake(entries),
+                    timeAwakeOrAsleep = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
+                    timeSinceLastPee = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
+                    timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
                     refresh = { viewModel.refreshEntries() }
                 )
             }
@@ -73,7 +76,7 @@ class RallyActivity : ComponentActivity() {
 }
 
 @Composable
-fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, timeSinceLastEntry: String, refresh: () -> Unit) {
+fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, awake: Boolean, timeAwakeOrAsleep: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -94,7 +97,10 @@ fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, timeSinceLastEntry
                         .verticalScroll(rememberScrollState())
                 ) {
                     RecentInfo(
-                        timeSinceLastEntry = timeSinceLastEntry,
+                        awake = awake,
+                        timeAwakeOrAsleep = timeAwakeOrAsleep,
+                        timeSinceLastPee = timeSinceLastPee,
+                        timeSinceLastPoop = timeSinceLastPoop,
                         refresh = refresh
                     )
                     AddEntryButton(addEntry)
@@ -134,13 +140,17 @@ fun EntryButtons(addEntry: (Entry) -> Unit) {
 }
 
 @Composable
-fun RecentInfo(timeSinceLastEntry: String, refresh: () -> Unit) {
+fun RecentInfo(awake: Boolean, timeAwakeOrAsleep: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.clickable(onClick = refresh)
     ) {
-        Text("Last entry: $timeSinceLastEntry.")
-        Spacer(modifier = Modifier.size(8.dp))
+        Column {
+            Text("${if (awake) "Awake" else "Asleep"} for: $timeAwakeOrAsleep.")
+            Text("Last pee: $timeSinceLastPee.")
+            Text("Last poop: $timeSinceLastPoop.")
+        }
+        Spacer(modifier = Modifier.size(16.dp))
         Image(
             painter = painterResource(R.drawable.ic_refresh),
             contentDescription = "Refresh"
