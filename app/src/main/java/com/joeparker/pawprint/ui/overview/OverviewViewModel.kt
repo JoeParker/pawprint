@@ -9,6 +9,8 @@ import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+const val PET_NAME = "Winnie" // TODO set & store
+
 class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
 
     // Using LiveData and caching what allWords returns has several benefits:
@@ -50,7 +52,19 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
     fun timeSinceEntry(entry: Entry?): String {
         val now = Date()
         val last = entry?.timestamp ?: return "No entries found"
-        return "${Helper.timestampToReadable(now.time - last.time)} ago"
+        return Helper.timestampToReadable(now.time - last.time)
+    }
+
+    fun currentStatus(entries: List<Entry>): String {
+        val awake = isAwake(entries)
+        val time = timeSinceEntry(entries.firstOrNull {
+            if (awake) {
+                it.type == EntryType.Wake
+            } else {
+                it.type == EntryType.Sleep
+            }
+        })
+        return "$PET_NAME's been ${if (awake) "awake" else "asleep"} for $time"
     }
 }
 

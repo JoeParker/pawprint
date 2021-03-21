@@ -14,11 +14,15 @@ class Helper {
             val diffInSec: Long = TimeUnit.MILLISECONDS.toSeconds(timestamp)
 
             return when {
-                (diffInDays >= 1) -> "$diffInDays days ${diffInHours - (diffInDays * 24)} hours"
-                (diffInHours >= 1) -> "$diffInHours hours ${diffInMin - (diffInHours * 60)} minutes"
-                (diffInMin >= 1) -> "$diffInMin minutes"
-                else -> "$diffInSec seconds"
+                (diffInDays >= 1) -> "$diffInDays ${pluralise("day", diffInDays)} ${diffInHours - (diffInDays * 24)} ${pluralise("day", diffInHours - (diffInDays * 24))}"
+                (diffInHours >= 1) -> "$diffInHours ${pluralise("hour", diffInHours)} ${diffInMin - (diffInHours * 60)} ${pluralise("minute", diffInMin - (diffInHours * 60))}"
+                (diffInMin >= 1) -> "$diffInMin ${pluralise("minute", diffInMin)}"
+                else -> "$diffInSec ${pluralise("second", diffInSec)}"
             }
+        }
+
+        fun pluralise(text: String, basedOnValue: Long): String {
+            return if (basedOnValue.toInt() == 1) text else "${text}s"
         }
     }
 }

@@ -62,8 +62,7 @@ class RallyActivity : ComponentActivity() {
                 RallyApp(
                     entries = entries,
                     addEntry = { viewModel.insert(it) },
-                    awake = viewModel.isAwake(entries),
-                    timeAwakeOrAsleep = viewModel.timeSinceEntry(entries.firstOrNull { if (viewModel.isAwake(entries)) { it.type == EntryType.Wake } else { it.type == EntryType.Sleep } }),
+                    currentStatus = viewModel.currentStatus(entries),
                     timeSinceLastPee = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
                     timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
                     refresh = { viewModel.refreshEntries() }
@@ -74,7 +73,7 @@ class RallyActivity : ComponentActivity() {
 }
 
 @Composable
-fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, awake: Boolean, timeAwakeOrAsleep: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
+fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, currentStatus: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -91,8 +90,7 @@ fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, awake: Boolean, ti
             Box(Modifier.padding(innerPadding)) {
                 Column {
                     RecentInfo(
-                        awake = awake,
-                        timeAwakeOrAsleep = timeAwakeOrAsleep,
+                        currentStatus = currentStatus,
                         timeSinceLastPee = timeSinceLastPee,
                         timeSinceLastPoop = timeSinceLastPoop,
                         refresh = refresh
@@ -133,7 +131,8 @@ fun EntryButtons(addEntry: (Entry) -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colors.secondary),
+                .background(color = MaterialTheme.colors.secondary)
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -159,7 +158,7 @@ fun EntryButtons(addEntry: (Entry) -> Unit) {
 }
 
 @Composable
-fun RecentInfo(awake: Boolean, timeAwakeOrAsleep: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
+fun RecentInfo(currentStatus: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -169,9 +168,9 @@ fun RecentInfo(awake: Boolean, timeAwakeOrAsleep: String, timeSinceLastPee: Stri
             .padding(8.dp),
     ) {
         Column {
-            Text("${if (awake) "Awake" else "Asleep"} for: $timeAwakeOrAsleep.")
-            Text("Last pee: $timeSinceLastPee.")
-            Text("Last poop: $timeSinceLastPoop.")
+            Text(currentStatus, style = MaterialTheme.typography.h5, color = MaterialTheme.colors.primary)
+            Text("Last pee: $timeSinceLastPee ago")
+            Text("Last poop: $timeSinceLastPoop ago")
         }
         Spacer(modifier = Modifier.size(16.dp))
         Image(
@@ -191,7 +190,7 @@ fun EntryRow(entry: Entry) {
         Spacer(modifier = Modifier.size(16.dp))
         Column {
             Text(entry.notes ?: "(${entry.type.name})")
-            Text(entry.timestamp.toString())
+            Text(entry.timestamp.toString(), style = MaterialTheme.typography.subtitle2)
         }
     }
 }
