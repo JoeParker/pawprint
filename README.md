@@ -9,6 +9,8 @@ This sample showcases:
 * Charts and tables
 * Animations
 
+Icons made by [Freepik](https://www.freepik.com "Freepik") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon")
+
 
 ## License
 ```
