@@ -7,6 +7,6 @@ enum class EntryType(
 ) {
     Sleep(R.drawable.ic_sleep),
     Wake(R.drawable.ic_wake),
-    Pee(1), // TODO
-    Poop(2); // TODO
+    Pee(R.drawable.ic_pee),
+    Poop(R.drawable.ic_poop);
 }

@@ -40,7 +40,6 @@ import com.joeparker.pawprint.ui.components.RallyTopAppBar
 import com.joeparker.pawprint.ui.overview.OverviewViewModel
 import com.joeparker.pawprint.ui.overview.OverviewViewModelFactory
 import com.joeparker.pawprint.ui.theme.RallyTheme
-import kotlinx.coroutines.runBlocking
 import java.util.*
 
 /**
@@ -64,7 +63,7 @@ class RallyActivity : ComponentActivity() {
             setContent {
                 RallyApp(
                     entries = entries,
-                    add = { viewModel.insert(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (it.isEmpty()) null else it, Date())) },
+                    addEntry = { viewModel.insert(it) },
                     timeSinceLastEntry = viewModel.timeSinceLastEntry(entries.firstOrNull()),
                     refresh = { viewModel.refreshEntries() }
                 )
@@ -74,7 +73,7 @@ class RallyActivity : ComponentActivity() {
 }
 
 @Composable
-fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: String, refresh: () -> Unit) {
+fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, timeSinceLastEntry: String, refresh: () -> Unit) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -85,7 +84,8 @@ fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: St
                     onTabSelected = { screen -> currentScreen = screen },
                     currentScreen = currentScreen
                 )
-            }
+            },
+            bottomBar = { EntryButtons(addEntry) }
         ) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
                 Column(
@@ -97,7 +97,7 @@ fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: St
                         timeSinceLastEntry = timeSinceLastEntry,
                         refresh = refresh
                     )
-                    AddEntryButton(add)
+                    AddEntryButton(addEntry)
                     entries.forEach {
                         EntryRow(entry = it)
                         Spacer(modifier = Modifier.size(8.dp))
@@ -110,10 +110,34 @@ fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: St
 }
 
 @Composable
+fun EntryButtons(addEntry: (Entry) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        EntryType.values().forEach { type ->
+            Box {
+                Button(
+                    onClick = {
+                        addEntry(Entry(UUID.randomUUID().toString(), type, null, Date()))
+                    }
+                ) {
+                    Image(
+                        painter = painterResource(type.icon),
+                        contentDescription = type.name
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun RecentInfo(timeSinceLastEntry: String, refresh: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable(onClick = { refresh() })
+        modifier = Modifier.clickable(onClick = refresh)
     ) {
         Text("Last entry: $timeSinceLastEntry.")
         Spacer(modifier = Modifier.size(8.dp))
@@ -133,23 +157,27 @@ fun EntryRow(entry: Entry) {
         )
         Spacer(modifier = Modifier.size(8.dp))
         Column {
-            Text(entry.notes ?: "(No Notes)")
+            Text(entry.notes ?: "(${entry.type.name})")
             Text(entry.timestamp.toString())
         }
     }
 }
 
 @Composable
-fun AddEntryButton(add: (String) -> Unit) {
+fun AddEntryButton(addEntry: (Entry) -> Unit) {
     var text by remember { mutableStateOf("") }
 
-    Button(onClick = { add(text) }) {
+    Button(
+        onClick = {
+            addEntry(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (text.isEmpty()) null else text, Date()))
+        }
+    ) {
         TextField(
             value = text,
             onValueChange = {
                 // If user hits return, insert and reset, otherwise update the text state
                 text = if (it.isNotEmpty() && it.last() == '\n') {
-                    add(text)
+                    addEntry(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (text.isEmpty()) null else text, Date()))
                     ""
                 } else {
                     it
