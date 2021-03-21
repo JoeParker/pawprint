@@ -161,27 +161,32 @@ fun EntryButtons(addEntry: (Entry) -> Unit) {
 
 @Composable
 fun RecentInfo(currentStatus: String, timeSinceLastPee: String?, timeSinceLastPoop: String?, refresh: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .clickable(onClick = refresh)
-            .background(color = MaterialTheme.colors.secondary)
-            .fillMaxWidth()
-            .padding(8.dp),
-    ) {
-        Column {
-            Text(currentStatus, style = MaterialTheme.typography.h5, color = MaterialTheme.colors.primary)
-            Text("Last pee: ${if (timeSinceLastPee != null) "$timeSinceLastPee ago" else "No entries found"}")
-            Text("Last poop: ${if (timeSinceLastPoop != null) "$timeSinceLastPoop ago" else "No entries found"}")
-        }
-        Box {
+    Box {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable(onClick = refresh)
+                .background(color = MaterialTheme.colors.secondary)
+                .fillMaxWidth()
+                .padding(8.dp),
+        ) {
             Column {
-                Spacer(modifier = Modifier.size(44.dp))
-                Image(
-                    painter = painterResource(R.drawable.ic_refresh),
-                    contentDescription = "Refresh"
-                )
+                Text(currentStatus, style = MaterialTheme.typography.h5, color = MaterialTheme.colors.primary)
+                Text("Last pee: ${if (timeSinceLastPee != null) "$timeSinceLastPee ago" else "No entries found"}")
+                Text("Last poop: ${if (timeSinceLastPoop != null) "$timeSinceLastPoop ago" else "No entries found"}")
             }
+        }
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp)
+        ) {
+            //Spacer(modifier = Modifier.size(64.dp))
+            Image(
+                painter = painterResource(R.drawable.ic_refresh),
+                contentDescription = "Refresh",
+                modifier = Modifier.alpha(0.7f)
+            )
         }
     }
 }
