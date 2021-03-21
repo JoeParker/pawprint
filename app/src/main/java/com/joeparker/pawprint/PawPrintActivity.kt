@@ -28,8 +28,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.joeparker.pawprint.data.PawPrintDatabase
 import com.joeparker.pawprint.data.constant.EntryType
@@ -67,6 +69,7 @@ class PawPrintActivity : ComponentActivity() {
                     currentStatus = viewModel.currentStatus(entries),
                     timeSinceLastPee = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
                     timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
+                    timeDifference = { viewModel.timeSinceEntry(it) },
                     refresh = { viewModel.refreshEntries() }
                 )
             }
@@ -75,7 +78,16 @@ class PawPrintActivity : ComponentActivity() {
 }
 
 @Composable
-fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, deleteEntry: (Entry) -> Unit, currentStatus: String, timeSinceLastPee: String?, timeSinceLastPoop: String?, refresh: () -> Unit) {
+fun RallyApp(
+    entries: List<Entry>,
+    addEntry: (Entry) -> Unit,
+    deleteEntry: (Entry) -> Unit,
+    currentStatus: String,
+    timeSinceLastPee: String?,
+    timeSinceLastPoop: String?,
+    timeDifference: (Entry) -> String?,
+    refresh: () -> Unit
+) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -105,10 +117,10 @@ fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, deleteEntry: (Entr
                         //AddEntryButton(addEntry)
                         entries.forEach {
                             Spacer(modifier = Modifier.size(8.dp))
-                            EntryRow(entry = it, deleteEntry = deleteEntry)
+                            EntryRow(entry = it, deleteEntry = deleteEntry, timeDifference = timeDifference)
                         }
                         Spacer(modifier = Modifier.size(16.dp))
-                        Box(modifier = Modifier
+                        Box(modifier = Modifier // TODO move to CustomDivider composable
                             .fillMaxWidth()
                             .height(1.dp)
                             .padding(horizontal = 64.dp)
@@ -168,10 +180,15 @@ fun RecentInfo(currentStatus: String, timeSinceLastPee: String?, timeSinceLastPo
                 .clickable(onClick = refresh)
                 .background(color = MaterialTheme.colors.secondary)
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(12.dp),
         ) {
             Column {
-                Text(currentStatus, style = MaterialTheme.typography.h5, color = MaterialTheme.colors.primary)
+                Text(
+                    currentStatus,
+                    style = MaterialTheme.typography.h5,
+                    color = MaterialTheme.colors.primary
+                )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text("Last pee: ${if (timeSinceLastPee != null) "$timeSinceLastPee ago" else "No entries found"}")
                 Text("Last poop: ${if (timeSinceLastPoop != null) "$timeSinceLastPoop ago" else "No entries found"}")
             }
@@ -181,7 +198,6 @@ fun RecentInfo(currentStatus: String, timeSinceLastPee: String?, timeSinceLastPo
                 .align(Alignment.BottomEnd)
                 .padding(8.dp)
         ) {
-            //Spacer(modifier = Modifier.size(64.dp))
             Image(
                 painter = painterResource(R.drawable.ic_refresh),
                 contentDescription = "Refresh",
@@ -192,7 +208,7 @@ fun RecentInfo(currentStatus: String, timeSinceLastPee: String?, timeSinceLastPo
 }
 
 @Composable
-fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit) {
+fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit, timeDifference: (Entry) -> String?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = painterResource(entry.type.icon),
@@ -200,10 +216,20 @@ fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit) {
         )
         Spacer(modifier = Modifier.size(16.dp))
         Column {
-            Text(entry.notes ?: "(${entry.type.name})")
+            Text(entry.notes ?: entry.type.name, color = MaterialTheme.colors.primary)
             Text(entry.timestamp.toString(), style = MaterialTheme.typography.subtitle2)
+            timeDifference(entry)?.let {
+                Text(
+                    "$it ago",
+                    style = MaterialTheme.typography.subtitle2,
+                    fontStyle = FontStyle.Italic,
+                    modifier = Modifier
+                        .alpha(0.7f)
+                        .padding(top = 4.dp)
+                )
+            }
         }
-        Spacer(modifier = Modifier.size(72.dp)) // TODO how to right-align image?
+        Spacer(modifier = Modifier.size(72.dp))
         Image(
             painter = painterResource(R.drawable.ic_delete),
             contentDescription = "Delete",

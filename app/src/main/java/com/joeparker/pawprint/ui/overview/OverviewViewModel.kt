@@ -7,7 +7,6 @@ import com.joeparker.pawprint.data.repository.EntryRepository
 import com.joeparker.pawprint.util.Helper
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 const val PET_NAME = "Winnie" // TODO set & store
 
