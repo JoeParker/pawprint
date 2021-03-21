@@ -65,7 +65,7 @@ class RallyActivity : ComponentActivity() {
                     entries = entries,
                     addEntry = { viewModel.insert(it) },
                     awake = viewModel.isAwake(entries),
-                    timeAwakeOrAsleep = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
+                    timeAwakeOrAsleep = viewModel.timeSinceEntry(entries.firstOrNull { if (viewModel.isAwake(entries)) { it.type == EntryType.Wake } else { it.type == EntryType.Sleep } }),
                     timeSinceLastPee = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
                     timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
                     refresh = { viewModel.refreshEntries() }

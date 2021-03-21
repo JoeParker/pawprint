@@ -15,7 +15,7 @@ import java.util.*
     entities = [
         Entry::class
     ],
-    version = 2
+    version = 1
 )
 @TypeConverters(
     com.joeparker.pawprint.util.TypeConverters::class
