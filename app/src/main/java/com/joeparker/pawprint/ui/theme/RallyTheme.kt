@@ -48,6 +48,7 @@ fun RallyTheme(content: @Composable () -> Unit) {
     // Rally is always dark themed.
     val colors = darkColors(
         primary = Green500,
+        secondary = MidBlue900,
         surface = DarkBlue900,
         onSurface = Color.White,
         background = DarkBlue900,

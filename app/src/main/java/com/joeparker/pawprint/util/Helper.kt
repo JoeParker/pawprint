@@ -14,9 +14,9 @@ class Helper {
             val diffInSec: Long = TimeUnit.MILLISECONDS.toSeconds(timestamp)
 
             return when {
-                (diffInDays > 1) -> "$diffInDays days ${diffInHours - (diffInDays * 24)} hours"
-                (diffInHours > 1) -> "$diffInHours hours ${diffInMin - (diffInHours * 60)} minutes"
-                (diffInMin > 1) -> "$diffInMin minutes"
+                (diffInDays >= 1) -> "$diffInDays days ${diffInHours - (diffInDays * 24)} hours"
+                (diffInHours >= 1) -> "$diffInHours hours ${diffInMin - (diffInHours * 60)} minutes"
+                (diffInMin >= 1) -> "$diffInMin minutes"
                 else -> "$diffInSec seconds"
             }
         }

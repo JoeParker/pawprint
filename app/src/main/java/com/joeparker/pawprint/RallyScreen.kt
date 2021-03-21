@@ -17,9 +17,7 @@
 package com.joeparker.pawprint
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.MoneyOff
-import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.joeparker.pawprint.data.UserData
@@ -36,15 +34,19 @@ enum class RallyScreen(
     private val body: @Composable ((RallyScreen) -> Unit) -> Unit
 ) {
     Overview(
-        icon = Icons.Filled.PieChart,
+        icon = Icons.Filled.Pets,
         body = { onScreenChange -> OverviewBody(onScreenChange) }
     ),
     Accounts(
-        icon = Icons.Filled.AttachMoney,
+        icon = Icons.Filled.BarChart,
         body = { AccountsBody(UserData.accounts) }
     ),
     Bills(
-        icon = Icons.Filled.MoneyOff,
+        icon = Icons.Filled.ShowChart,
+        body = { BillsBody(UserData.bills) }
+    ),
+    Dummy(
+        icon = Icons.Filled.Settings,
         body = { BillsBody(UserData.bills) }
     );
 

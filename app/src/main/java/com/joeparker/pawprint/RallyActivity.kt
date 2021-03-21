@@ -20,16 +20,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.joeparker.pawprint.data.PawPrintDatabase
@@ -91,11 +89,7 @@ fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, awake: Boolean, ti
             bottomBar = { EntryButtons(addEntry) }
         ) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
+                Column {
                     RecentInfo(
                         awake = awake,
                         timeAwakeOrAsleep = timeAwakeOrAsleep,
@@ -103,10 +97,24 @@ fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, awake: Boolean, ti
                         timeSinceLastPoop = timeSinceLastPoop,
                         refresh = refresh
                     )
-                    AddEntryButton(addEntry)
-                    entries.forEach {
-                        EntryRow(entry = it)
-                        Spacer(modifier = Modifier.size(8.dp))
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        //AddEntryButton(addEntry)
+                        entries.forEach {
+                            Spacer(modifier = Modifier.size(8.dp))
+                            EntryRow(entry = it)
+                        }
+                        Spacer(modifier = Modifier.size(16.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(horizontal = 64.dp)
+                            .background(color = MaterialTheme.colors.secondary)
+                        )
+                        Spacer(modifier = Modifier.size(16.dp))
                     }
                 }
                 //currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
@@ -117,22 +125,33 @@ fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, awake: Boolean, ti
 
 @Composable
 fun EntryButtons(addEntry: (Entry) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly
+    Surface(
+        modifier = Modifier
+            .background(color = MaterialTheme.colors.secondary)
+            .padding(vertical = 10.dp)
     ) {
-        EntryType.values().forEach { type ->
-            Box {
-                Button(
-                    onClick = {
-                        addEntry(Entry(UUID.randomUUID().toString(), type, null, Date()))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colors.secondary),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            EntryType.values().forEach { type ->
+                Box {
+                    Button(
+                        onClick = {
+                            addEntry(Entry(UUID.randomUUID().toString(), type, null, Date()))
+                        }
+                    ) {
+                        Image(
+                            painter = painterResource(type.icon),
+                            contentDescription = type.name,
+                            contentScale = ContentScale.FillHeight,
+                            modifier = Modifier
+                                .height(28.dp)
+                        )
                     }
-                ) {
-                    Image(
-                        painter = painterResource(type.icon),
-                        contentDescription = type.name
-                    )
                 }
             }
         }
@@ -143,7 +162,11 @@ fun EntryButtons(addEntry: (Entry) -> Unit) {
 fun RecentInfo(awake: Boolean, timeAwakeOrAsleep: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable(onClick = refresh)
+        modifier = Modifier
+            .clickable(onClick = refresh)
+            .background(color = MaterialTheme.colors.secondary)
+            .fillMaxWidth()
+            .padding(8.dp),
     ) {
         Column {
             Text("${if (awake) "Awake" else "Asleep"} for: $timeAwakeOrAsleep.")
@@ -165,7 +188,7 @@ fun EntryRow(entry: Entry) {
             painter = painterResource(entry.type.icon),
             contentDescription = entry.type.name
         )
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(16.dp))
         Column {
             Text(entry.notes ?: "(${entry.type.name})")
             Text(entry.timestamp.toString())
