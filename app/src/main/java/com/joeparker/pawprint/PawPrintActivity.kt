@@ -27,6 +27,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,7 @@ import java.util.*
  * This Activity recreates part of the Rally Material Study from
  * https://material.io/design/material-studies/rally.html
  */
-class RallyActivity : ComponentActivity() {
+class PawPrintActivity : ComponentActivity() {
     // Using by lazy so the database and the repository are only created when they're needed
     // rather than when the application starts
     private val database by lazy { PawPrintDatabase.getDatabase(this) }
@@ -62,6 +63,7 @@ class RallyActivity : ComponentActivity() {
                 RallyApp(
                     entries = entries,
                     addEntry = { viewModel.insert(it) },
+                    deleteEntry = { viewModel.delete(it) },
                     currentStatus = viewModel.currentStatus(entries),
                     timeSinceLastPee = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
                     timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
@@ -73,7 +75,7 @@ class RallyActivity : ComponentActivity() {
 }
 
 @Composable
-fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, currentStatus: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
+fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, deleteEntry: (Entry) -> Unit, currentStatus: String, timeSinceLastPee: String?, timeSinceLastPoop: String?, refresh: () -> Unit) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
         var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
@@ -103,7 +105,7 @@ fun RallyApp(entries: List<Entry>, addEntry: (Entry) -> Unit, currentStatus: Str
                         //AddEntryButton(addEntry)
                         entries.forEach {
                             Spacer(modifier = Modifier.size(8.dp))
-                            EntryRow(entry = it)
+                            EntryRow(entry = it, deleteEntry = deleteEntry)
                         }
                         Spacer(modifier = Modifier.size(16.dp))
                         Box(modifier = Modifier
@@ -158,7 +160,7 @@ fun EntryButtons(addEntry: (Entry) -> Unit) {
 }
 
 @Composable
-fun RecentInfo(currentStatus: String, timeSinceLastPee: String, timeSinceLastPoop: String, refresh: () -> Unit) {
+fun RecentInfo(currentStatus: String, timeSinceLastPee: String?, timeSinceLastPoop: String?, refresh: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -169,19 +171,23 @@ fun RecentInfo(currentStatus: String, timeSinceLastPee: String, timeSinceLastPoo
     ) {
         Column {
             Text(currentStatus, style = MaterialTheme.typography.h5, color = MaterialTheme.colors.primary)
-            Text("Last pee: $timeSinceLastPee ago")
-            Text("Last poop: $timeSinceLastPoop ago")
+            Text("Last pee: ${if (timeSinceLastPee != null) "$timeSinceLastPee ago" else "No entries found"}")
+            Text("Last poop: ${if (timeSinceLastPoop != null) "$timeSinceLastPoop ago" else "No entries found"}")
         }
-        Spacer(modifier = Modifier.size(16.dp))
-        Image(
-            painter = painterResource(R.drawable.ic_refresh),
-            contentDescription = "Refresh"
-        )
+        Box {
+            Column {
+                Spacer(modifier = Modifier.size(44.dp))
+                Image(
+                    painter = painterResource(R.drawable.ic_refresh),
+                    contentDescription = "Refresh"
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun EntryRow(entry: Entry) {
+fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = painterResource(entry.type.icon),
@@ -192,6 +198,14 @@ fun EntryRow(entry: Entry) {
             Text(entry.notes ?: "(${entry.type.name})")
             Text(entry.timestamp.toString(), style = MaterialTheme.typography.subtitle2)
         }
+        Spacer(modifier = Modifier.size(72.dp)) // TODO how to right-align image?
+        Image(
+            painter = painterResource(R.drawable.ic_delete),
+            contentDescription = "Delete",
+            modifier = Modifier
+                .alpha(0.4f)
+                .clickable(onClick = { deleteEntry(entry) })
+        )
     }
 }
 

@@ -49,9 +49,9 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
 
     suspend fun suspendingRemove(entry: Entry) = repository.delete(entry)
 
-    fun timeSinceEntry(entry: Entry?): String {
+    fun timeSinceEntry(entry: Entry?): String? {
         val now = Date()
-        val last = entry?.timestamp ?: return "No entries found"
+        val last = entry?.timestamp ?: return null
         return Helper.timestampToReadable(now.time - last.time)
     }
 
@@ -64,7 +64,11 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
                 it.type == EntryType.Sleep
             }
         })
-        return "$PET_NAME's been ${if (awake) "awake" else "asleep"} for $time"
+        return if (time != null) {
+            "$PET_NAME's been ${if (awake) "awake" else "asleep"} for $time"
+        } else {
+            "$PET_NAME's overview"
+        }
     }
 }
 

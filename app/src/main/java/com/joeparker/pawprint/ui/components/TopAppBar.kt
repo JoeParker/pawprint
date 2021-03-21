@@ -60,7 +60,7 @@ fun RallyTopAppBar(
         Row(Modifier.selectableGroup()) {
             allScreens.forEach { screen ->
                 RallyTab(
-                    text = screen.name.toUpperCase(),
+                    text = (if (screen.name == "Overview") screen.name else "Coming Soon").toUpperCase(),
                     icon = screen.icon,
                     onSelected = { onTabSelected(screen) },
                     selected = currentScreen == screen
