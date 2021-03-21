@@ -45,7 +45,11 @@ enum class RallyScreen(
         icon = Icons.Filled.ShowChart,
         body = { BillsBody(UserData.bills) }
     ),
-    Dummy(
+    Calendar(
+        icon = Icons.Filled.CalendarViewMonth,
+        body = { BillsBody(UserData.bills) }
+    ),
+    Settings(
         icon = Icons.Filled.Settings,
         body = { BillsBody(UserData.bills) }
     );
