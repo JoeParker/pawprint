@@ -22,10 +22,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -67,10 +64,7 @@ class RallyActivity : ComponentActivity() {
             setContent {
                 RallyApp(
                     entries = entries,
-                    add = { runBlocking {
-                            viewModel.add(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (it.isEmpty()) null else it, Date()))
-                        }
-                    },
+                    add = { viewModel.insert(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (it.isEmpty()) null else it, Date())) },
                     timeSinceLastEntry = viewModel.timeSinceLastEntry(entries.firstOrNull()),
                     refresh = { viewModel.refreshEntries() }
                 )
@@ -99,24 +93,48 @@ fun RallyApp(entries: List<Entry>, add: (String) -> Unit, timeSinceLastEntry: St
                         .padding(horizontal = 8.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Text("Time since last entry: $timeSinceLastEntry")
+                    RecentInfo(
+                        timeSinceLastEntry = timeSinceLastEntry,
+                        refresh = refresh
+                    )
                     AddEntryButton(add)
                     entries.forEach {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                painter = painterResource(it.type.icon),
-                                contentDescription = it.type.name,
-                                modifier = Modifier.clickable(onClick = { refresh() })
-                            )
-                            Column {
-                                Text(it.notes ?: "no Notes")
-                                Text(it.timestamp?.toString() ?: "no Date")
-                            }
-                        }
+                        EntryRow(entry = it)
+                        Spacer(modifier = Modifier.size(8.dp))
                     }
                 }
                 //currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
             }
+        }
+    }
+}
+
+@Composable
+fun RecentInfo(timeSinceLastEntry: String, refresh: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.clickable(onClick = { refresh() })
+    ) {
+        Text("Last entry: $timeSinceLastEntry.")
+        Spacer(modifier = Modifier.size(8.dp))
+        Image(
+            painter = painterResource(R.drawable.ic_refresh),
+            contentDescription = "Refresh"
+        )
+    }
+}
+
+@Composable
+fun EntryRow(entry: Entry) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Image(
+            painter = painterResource(entry.type.icon),
+            contentDescription = entry.type.name
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Column {
+            Text(entry.notes ?: "(No Notes)")
+            Text(entry.timestamp.toString())
         }
     }
 }
@@ -129,10 +147,12 @@ fun AddEntryButton(add: (String) -> Unit) {
         TextField(
             value = text,
             onValueChange = {
-                if (it.isNotEmpty() && it.last() == '\n') {
+                // If user hits return, insert and reset, otherwise update the text state
+                text = if (it.isNotEmpty() && it.last() == '\n') {
                     add(text)
+                    ""
                 } else {
-                    text = it
+                    it
                 }
             },
             label = { Text("Notes") }

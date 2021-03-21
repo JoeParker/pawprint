@@ -38,9 +38,9 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
         repository.delete(entry)
     }
 
-    suspend fun add(entry: Entry) = repository.insert(entry)
+    suspend fun suspendingInsert(entry: Entry) = repository.insert(entry)
 
-    suspend fun remove(entry: Entry) = repository.delete(entry)
+    suspend fun suspendingRemove(entry: Entry) = repository.delete(entry)
 
     fun timeSinceLastEntry(entry: Entry?): String {
         val now = Date()
@@ -52,12 +52,13 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
         val diffInMin: Long = TimeUnit.MILLISECONDS.toMinutes(diffInMillisec)
         val diffInSec: Long = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec)
 
-        return when {
+        val time = when {
             (diffInDays > 1) -> "$diffInDays days ${diffInHours - (diffInDays * 24)} hours"
             (diffInHours > 1) -> "$diffInHours hours ${diffInMin - (diffInHours * 60)} minutes"
             (diffInMin > 1) -> "$diffInMin minutes"
             else -> "$diffInSec seconds"
         }
+        return "$time ago"
     }
 }
 

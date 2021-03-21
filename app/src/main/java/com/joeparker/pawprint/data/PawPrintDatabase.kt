@@ -15,7 +15,7 @@ import java.util.*
     entities = [
         Entry::class
     ],
-    version = 1
+    version = 2
 )
 @TypeConverters(
     com.joeparker.pawprint.util.TypeConverters::class
@@ -44,10 +44,10 @@ abstract class PawPrintDatabase : RoomDatabase() {
                 .build()
 
                 // Populate dummy data
-                DataSeeder(
-                    entryDAO = instance.entryDAO()
-                )
-                .seed()
+//                DataSeeder(
+//                    entryDAO = instance.entryDAO()
+//                )
+//                .seed()
 
                 INSTANCE = instance
                 // return instance
