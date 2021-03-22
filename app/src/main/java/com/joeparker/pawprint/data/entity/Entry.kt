@@ -8,8 +8,8 @@ import java.util.*
 
 @Entity(tableName = "entry")
 data class Entry(
-    @PrimaryKey val id: String,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     @ColumnInfo(name = "type") val type: EntryType,
-    @ColumnInfo(name = "notes") val notes: String?,
-    @ColumnInfo(name = "timestamp") val timestamp: Date
+    @ColumnInfo(name = "notes") val notes: String? = null,
+    @ColumnInfo(name = "timestamp") val timestamp: Date = Date()
 )

@@ -19,22 +19,23 @@ package com.joeparker.pawprint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.widget.DatePicker
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.joeparker.pawprint.data.PawPrintDatabase
@@ -61,10 +62,11 @@ class PawPrintActivity : ComponentActivity() {
         OverviewViewModelFactory(repository)
     }
 
+    @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fun pickDateTime() {
+        fun pickDateTime(onCompletion: (Date) -> Unit) {
             val currentDateTime = Calendar.getInstance()
             val startYear = currentDateTime.get(Calendar.YEAR)
             val startMonth = currentDateTime.get(Calendar.MONTH)
@@ -76,34 +78,10 @@ class PawPrintActivity : ComponentActivity() {
                 TimePickerDialog(this, { _, hour, minute ->
                     val pickedDateTime = Calendar.getInstance()
                     pickedDateTime.set(year, month, day, hour, minute)
-//                    setContent {
-//                        Column {
-//                            Text(pickedDateTime.toString(), color = Color.White)
-//                        }
-//                    }
-                    viewModel.insert(Entry(UUID.randomUUID().toString(), EntryType.Sleep, null, pickedDateTime.time))
+                    onCompletion(pickedDateTime.time)
                 }, startHour, startMinute, false).show()
             }, startYear, startMonth, startDay).show()
         }
-
-
-//        val c = Calendar.getInstance()
-////        val year = c.get(Calendar.YEAR)
-////        val month = c.get(Calendar.MONTH)
-////        val day = c.get(Calendar.DAY_OF_MONTH)
-//        val mHour = c[Calendar.HOUR_OF_DAY]
-//        val mMinute = c[Calendar.MINUTE]
-//
-//        val timePickerDialog = TimePickerDialog(
-//            this,
-//            { _, hourOfDay, minute ->
-//                setContent {
-//                    Column {
-//                        Text("$hourOfDay:$minute", color = Color.White)
-//                    }
-//                }
-//            }, mHour, mMinute, true
-//        )
 
         viewModel.allEntries.observe(this) { entries ->
             setContent {
@@ -116,13 +94,14 @@ class PawPrintActivity : ComponentActivity() {
                     timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
                     timeDifference = { viewModel.timeSinceEntry(it) },
                     refresh = { viewModel.refreshEntries() },
-                    selectTime = { pickDateTime() }
+                    selectTime = { entryType -> pickDateTime(onCompletion = { viewModel.insert(Entry(type = entryType, timestamp = it)) }) }
                 )
             }
         }
     }
 }
 
+@ExperimentalFoundationApi
 @Composable
 fun RallyApp(
     entries: List<Entry>,
@@ -133,7 +112,7 @@ fun RallyApp(
     timeSinceLastPoop: String?,
     timeDifference: (Entry) -> String?,
     refresh: () -> Unit,
-    selectTime: () -> Unit
+    selectTime: (EntryType) -> Unit
 ) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
@@ -146,7 +125,7 @@ fun RallyApp(
                     currentScreen = currentScreen
                 )
             },
-            bottomBar = { EntryButtons(addEntry) }
+            bottomBar = { EntryButtons(addEntry, selectTime) }
         ) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
                 Column {
@@ -161,9 +140,6 @@ fun RallyApp(
                             .padding(horizontal = 16.dp)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        Button(onClick = selectTime) {
-                            Text("Date")
-                        }
                         //AddEntryButton(addEntry)
                         entries.forEach {
                             Spacer(modifier = Modifier.size(8.dp))
@@ -185,8 +161,65 @@ fun RallyApp(
     }
 }
 
+@ExperimentalFoundationApi
 @Composable
-fun EntryButtons(addEntry: (Entry) -> Unit) {
+fun HeldButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    elevation: ButtonElevation? = ButtonDefaults.elevation(),
+    shape: Shape = MaterialTheme.shapes.small,
+    border: BorderStroke? = null,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit
+) {
+    // TODO(aelias): Avoid manually putting the clickable above the clip and
+    // the ripple below the clip once http://b/157687898 is fixed and we have
+    // more flexibility to move the clickable modifier (see candidate approach
+    // aosp/1361921)
+    val contentColor by colors.contentColor(enabled)
+    Surface(
+        shape = shape,
+        color = colors.backgroundColor(enabled).value,
+        contentColor = contentColor.copy(alpha = 1f),
+        border = border,
+        elevation = elevation?.elevation(enabled, interactionSource)?.value ?: 0.dp,
+        modifier = modifier.combinedClickable(
+            onClick = onClick,
+            onLongClick = onLongClick,
+            enabled = enabled,
+            role = Role.Button,
+            interactionSource = interactionSource,
+            indication = null
+        )
+    ) {
+        CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
+            ProvideTextStyle(
+                value = MaterialTheme.typography.button
+            ) {
+                Row(
+                    Modifier
+                        .defaultMinSize(
+                            minWidth = ButtonDefaults.MinWidth,
+                            minHeight = ButtonDefaults.MinHeight
+                        )
+                        .indication(interactionSource, rememberRipple())
+                        .padding(contentPadding),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = content
+                )
+            }
+        }
+    }
+}
+
+@ExperimentalFoundationApi
+@Composable
+fun EntryButtons(addEntry: (Entry) -> Unit, selectTime: (EntryType) -> Unit) {
     Surface(
         modifier = Modifier
             .background(color = MaterialTheme.colors.secondary)
@@ -202,9 +235,12 @@ fun EntryButtons(addEntry: (Entry) -> Unit) {
         ) {
             EntryType.values().forEach { type ->
                 Box {
-                    Button(
+                    HeldButton(
                         onClick = {
-                            addEntry(Entry(UUID.randomUUID().toString(), type, null, Date()))
+                            addEntry(Entry(type = type))
+                        },
+                        onLongClick = {
+                            selectTime(type)
                         }
                     ) {
                         Image(
@@ -264,7 +300,8 @@ fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit, timeDifference: (Entry)
     Box {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(entry.type.icon),

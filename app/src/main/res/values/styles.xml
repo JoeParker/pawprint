@@ -20,5 +20,9 @@
         <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:windowBackground">?attr/colorSurface</item>
+        <!-- Used by the Date/Time picker -->
+        <item name="colorAccent">@color/statusBarColor</item>
+        <item name="colorControlActivated">@color/statusBarColor</item>
+        <item name="colorControlHighlight">@color/statusBarColor</item>
     </style>
 </resources>
