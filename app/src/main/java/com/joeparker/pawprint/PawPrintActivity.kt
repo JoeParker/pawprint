@@ -16,12 +16,16 @@
 
 package com.joeparker.pawprint
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
+import android.widget.DatePicker
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,6 +64,47 @@ class PawPrintActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        fun pickDateTime() {
+            val currentDateTime = Calendar.getInstance()
+            val startYear = currentDateTime.get(Calendar.YEAR)
+            val startMonth = currentDateTime.get(Calendar.MONTH)
+            val startDay = currentDateTime.get(Calendar.DAY_OF_MONTH)
+            val startHour = currentDateTime.get(Calendar.HOUR_OF_DAY)
+            val startMinute = currentDateTime.get(Calendar.MINUTE)
+
+            DatePickerDialog(this, { _, year, month, day ->
+                TimePickerDialog(this, { _, hour, minute ->
+                    val pickedDateTime = Calendar.getInstance()
+                    pickedDateTime.set(year, month, day, hour, minute)
+//                    setContent {
+//                        Column {
+//                            Text(pickedDateTime.toString(), color = Color.White)
+//                        }
+//                    }
+                    viewModel.insert(Entry(UUID.randomUUID().toString(), EntryType.Sleep, null, pickedDateTime.time))
+                }, startHour, startMinute, false).show()
+            }, startYear, startMonth, startDay).show()
+        }
+
+
+//        val c = Calendar.getInstance()
+////        val year = c.get(Calendar.YEAR)
+////        val month = c.get(Calendar.MONTH)
+////        val day = c.get(Calendar.DAY_OF_MONTH)
+//        val mHour = c[Calendar.HOUR_OF_DAY]
+//        val mMinute = c[Calendar.MINUTE]
+//
+//        val timePickerDialog = TimePickerDialog(
+//            this,
+//            { _, hourOfDay, minute ->
+//                setContent {
+//                    Column {
+//                        Text("$hourOfDay:$minute", color = Color.White)
+//                    }
+//                }
+//            }, mHour, mMinute, true
+//        )
+
         viewModel.allEntries.observe(this) { entries ->
             setContent {
                 RallyApp(
@@ -70,7 +115,8 @@ class PawPrintActivity : ComponentActivity() {
                     timeSinceLastPee = viewModel.timeSinceEntry(entries.firstOrNull { it.type == EntryType.Pee }),
                     timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
                     timeDifference = { viewModel.timeSinceEntry(it) },
-                    refresh = { viewModel.refreshEntries() }
+                    refresh = { viewModel.refreshEntries() },
+                    selectTime = { pickDateTime() }
                 )
             }
         }
@@ -86,7 +132,8 @@ fun RallyApp(
     timeSinceLastPee: String?,
     timeSinceLastPoop: String?,
     timeDifference: (Entry) -> String?,
-    refresh: () -> Unit
+    refresh: () -> Unit,
+    selectTime: () -> Unit
 ) {
     RallyTheme {
         val allScreens = RallyScreen.values().toList()
@@ -109,11 +156,14 @@ fun RallyApp(
                         timeSinceLastPoop = timeSinceLastPoop,
                         refresh = refresh
                     )
-                    Column(
+                    Column( // TODO should be LazyColumn
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .verticalScroll(rememberScrollState())
                     ) {
+                        Button(onClick = selectTime) {
+                            Text("Date")
+                        }
                         //AddEntryButton(addEntry)
                         entries.forEach {
                             Spacer(modifier = Modifier.size(8.dp))
