@@ -297,7 +297,7 @@ fun RecentInfo(currentStatus: String, timeSinceLastPee: String?, timeSinceLastPo
 
 @Composable
 fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit, timeDifference: (Entry) -> String?) {
-    Box {
+    Box(modifier = Modifier.padding(vertical = 4.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -332,6 +332,7 @@ fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit, timeDifference: (Entry)
                 modifier = Modifier
                     .alpha(0.4f)
                     .clickable(onClick = { deleteEntry(entry) })
+                    .padding(8.dp) // Padding to increase the 'click area' for easier use
             )
         }
     }
@@ -343,7 +344,7 @@ fun AddEntryButton(addEntry: (Entry) -> Unit) {
 
     Button(
         onClick = {
-            addEntry(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (text.isEmpty()) null else text, Date()))
+            addEntry(Entry(type = EntryType.Sleep, notes = if (text.isEmpty()) null else text))
         }
     ) {
         TextField(
@@ -351,7 +352,7 @@ fun AddEntryButton(addEntry: (Entry) -> Unit) {
             onValueChange = {
                 // If user hits return, insert and reset, otherwise update the text state
                 text = if (it.isNotEmpty() && it.last() == '\n') {
-                    addEntry(Entry(UUID.randomUUID().toString(), EntryType.Sleep, if (text.isEmpty()) null else text, Date()))
+                    addEntry(Entry(type = EntryType.Sleep, notes = if (text.isEmpty()) null else text))
                     ""
                 } else {
                     it

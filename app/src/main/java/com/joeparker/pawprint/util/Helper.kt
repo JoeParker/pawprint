@@ -14,9 +14,10 @@ class Helper {
             val diffInSec: Long = TimeUnit.MILLISECONDS.toSeconds(timestamp)
 
             return when {
-                (diffInDays >= 1) -> "$diffInDays ${pluralise("day", diffInDays)} ${diffInHours - (diffInDays * 24)} ${pluralise("day", diffInHours - (diffInDays * 24))}"
+                (diffInDays >= 1) -> "$diffInDays ${pluralise("day", diffInDays)} ${diffInHours - (diffInDays * 24)} ${pluralise("hour", diffInHours - (diffInDays * 24))}"
                 (diffInHours >= 1) -> "$diffInHours ${pluralise("hour", diffInHours)} ${diffInMin - (diffInHours * 60)} ${pluralise("minute", diffInMin - (diffInHours * 60))}"
                 (diffInMin >= 1) -> "$diffInMin ${pluralise("minute", diffInMin)}"
+                //(diffInSec < 0) -> "Planned for ${timestampToReadable(-timestamp)}" // TODO handle future events or disallow - this doesn't concern this function's scope
                 else -> "$diffInSec ${pluralise("second", diffInSec)}"
             }
         }
