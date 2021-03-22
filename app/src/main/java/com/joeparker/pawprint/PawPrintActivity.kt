@@ -211,34 +211,42 @@ fun RecentInfo(currentStatus: String, timeSinceLastPee: String?, timeSinceLastPo
 
 @Composable
 fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit, timeDifference: (Entry) -> String?) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Image(
-            painter = painterResource(entry.type.icon),
-            contentDescription = entry.type.name
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        Column {
-            Text(entry.notes ?: entry.type.name, color = MaterialTheme.colors.primary)
-            Text(entry.timestamp.toString(), style = MaterialTheme.typography.subtitle2)
-            timeDifference(entry)?.let {
-                Text(
-                    "$it ago",
-                    style = MaterialTheme.typography.subtitle2,
-                    fontStyle = FontStyle.Italic,
-                    modifier = Modifier
-                        .alpha(0.7f)
-                        .padding(top = 4.dp)
-                )
+    Box {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Image(
+                painter = painterResource(entry.type.icon),
+                contentDescription = entry.type.name
+            )
+            Spacer(modifier = Modifier.size(16.dp))
+            Column {
+                Text(entry.notes ?: entry.type.name, color = MaterialTheme.colors.primary)
+                Text(entry.timestamp.toString(), style = MaterialTheme.typography.subtitle2)
+                timeDifference(entry)?.let {
+                    Text(
+                        "$it ago",
+                        style = MaterialTheme.typography.subtitle2,
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier
+                            .alpha(0.7f)
+                            .padding(top = 4.dp)
+                    )
+                }
             }
         }
-        Spacer(modifier = Modifier.size(72.dp))
-        Image(
-            painter = painterResource(R.drawable.ic_delete),
-            contentDescription = "Delete",
-            modifier = Modifier
-                .alpha(0.4f)
-                .clickable(onClick = { deleteEntry(entry) })
-        )
+        Column(
+            modifier = Modifier.align(Alignment.CenterEnd)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_delete),
+                contentDescription = "Delete",
+                modifier = Modifier
+                    .alpha(0.4f)
+                    .clickable(onClick = { deleteEntry(entry) })
+            )
+        }
     }
 }
 
