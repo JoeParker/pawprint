@@ -16,14 +16,11 @@
 
 package com.joeparker.pawprint
 
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.joeparker.pawprint.data.UserData
-import com.joeparker.pawprint.ui.accounts.AccountsBody
-import com.joeparker.pawprint.ui.bills.BillsBody
-import com.joeparker.pawprint.ui.overview.OverviewBody
 
 /**
  * Screen state for Rally. Navigation is kept simple until a proper mechanism is available. Back
@@ -31,31 +28,31 @@ import com.joeparker.pawprint.ui.overview.OverviewBody
  */
 enum class RallyScreen(
     val icon: ImageVector,
-    private val body: @Composable ((RallyScreen) -> Unit) -> Unit
+    private val body: @Composable (() -> Unit)
 ) {
     Overview(
         icon = Icons.Filled.Pets,
-        body = { onScreenChange -> OverviewBody(onScreenChange) }
+        body = { PlaceholderScreen() }
     ),
     Accounts(
         icon = Icons.Filled.BarChart,
-        body = { AccountsBody(UserData.accounts) }
+        body = { PlaceholderScreen() }
     ),
     Bills(
         icon = Icons.Filled.ShowChart,
-        body = { BillsBody(UserData.bills) }
+        body = { PlaceholderScreen() }
     ),
     Calendar(
         icon = Icons.Filled.CalendarViewMonth,
-        body = { BillsBody(UserData.bills) }
+        body = { PlaceholderScreen() }
     ),
     Settings(
         icon = Icons.Filled.Settings,
-        body = { BillsBody(UserData.bills) }
+        body = { PlaceholderScreen() }
     );
+}
 
-    @Composable
-    fun content(onScreenChange: (RallyScreen) -> Unit) {
-        body(onScreenChange)
-    }
+@Composable
+fun PlaceholderScreen() {
+    Text("Coming Soon")
 }

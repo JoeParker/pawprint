@@ -140,7 +140,6 @@ fun RallyApp(
                     LazyColumn(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
-                            .verticalScroll(rememberScrollState())
                     ) {
                         //AddEntryButton(addEntry)
                         items(entries) {
