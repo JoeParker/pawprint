@@ -185,10 +185,6 @@ fun HeldButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
-    // TODO(aelias): Avoid manually putting the clickable above the clip and
-    // the ripple below the clip once http://b/157687898 is fixed and we have
-    // more flexibility to move the clickable modifier (see candidate approach
-    // aosp/1361921)
     val contentColor by colors.contentColor(enabled)
     Surface(
         shape = shape,
@@ -322,7 +318,7 @@ fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit, timeDifference: (Entry)
                 Text(entry.timestamp.toString(), style = MaterialTheme.typography.subtitle2)
                 timeDifference(entry)?.let {
                     Text(
-                        "$it ago",
+                        text = if (it.firstOrNull() == '-') "Upcoming" else "$it ago",
                         style = MaterialTheme.typography.subtitle2,
                         fontStyle = FontStyle.Italic,
                         modifier = Modifier
