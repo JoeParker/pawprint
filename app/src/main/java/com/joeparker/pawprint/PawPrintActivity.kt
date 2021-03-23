@@ -25,6 +25,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
@@ -135,24 +137,31 @@ fun RallyApp(
                         timeSinceLastPoop = timeSinceLastPoop,
                         refresh = refresh
                     )
-                    Column( // TODO should be LazyColumn
+                    LazyColumn(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .verticalScroll(rememberScrollState())
                     ) {
                         //AddEntryButton(addEntry)
-                        entries.forEach {
+                        items(entries) {
                             Spacer(modifier = Modifier.size(8.dp))
-                            EntryRow(entry = it, deleteEntry = deleteEntry, timeDifference = timeDifference)
+                            EntryRow(
+                                entry = it,
+                                deleteEntry = deleteEntry,
+                                timeDifference = timeDifference
+                            )
                         }
-                        Spacer(modifier = Modifier.size(16.dp))
-                        Box(modifier = Modifier // TODO move to CustomDivider composable
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .padding(horizontal = 64.dp)
-                            .background(color = MaterialTheme.colors.secondary)
-                        )
-                        Spacer(modifier = Modifier.size(16.dp))
+                        item {
+                            Spacer(modifier = Modifier.size(16.dp))
+                            Box(
+                                modifier = Modifier // TODO move to CustomDivider composable
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .padding(horizontal = 64.dp)
+                                    .background(color = MaterialTheme.colors.secondary)
+                            )
+                            Spacer(modifier = Modifier.size(16.dp))
+                        }
                     }
                 }
                 //currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
