@@ -48,6 +48,7 @@ import com.joeparker.pawprint.ui.components.RallyTopAppBar
 import com.joeparker.pawprint.ui.overview.OverviewViewModel
 import com.joeparker.pawprint.ui.overview.OverviewViewModelFactory
 import com.joeparker.pawprint.ui.theme.RallyTheme
+import com.joeparker.pawprint.util.Helper
 import java.util.*
 
 /**
@@ -68,23 +69,6 @@ class PawPrintActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fun pickDateTime(onCompletion: (Date) -> Unit) {
-            val currentDateTime = Calendar.getInstance()
-            val startYear = currentDateTime.get(Calendar.YEAR)
-            val startMonth = currentDateTime.get(Calendar.MONTH)
-            val startDay = currentDateTime.get(Calendar.DAY_OF_MONTH)
-            val startHour = currentDateTime.get(Calendar.HOUR_OF_DAY)
-            val startMinute = currentDateTime.get(Calendar.MINUTE)
-
-            DatePickerDialog(this, { _, year, month, day ->
-                TimePickerDialog(this, { _, hour, minute ->
-                    val pickedDateTime = Calendar.getInstance()
-                    pickedDateTime.set(year, month, day, hour, minute)
-                    onCompletion(pickedDateTime.time)
-                }, startHour, startMinute, false).show()
-            }, startYear, startMonth, startDay).show()
-        }
-
         viewModel.allEntries.observe(this) { entries ->
             setContent {
                 RallyApp(
@@ -96,7 +80,7 @@ class PawPrintActivity : ComponentActivity() {
                     timeSinceLastPoop = viewModel.timeSinceEntry(entries.firstOrNull{ it.type == EntryType.Poop }),
                     timeDifference = { viewModel.timeSinceEntry(it) },
                     refresh = { viewModel.refreshEntries() },
-                    selectTime = { entryType -> pickDateTime(onCompletion = { viewModel.insert(Entry(type = entryType, timestamp = it)) }) }
+                    selectTime = { entryType -> Helper.pickDateTime(context = this, onCompletion = { viewModel.insert(Entry(type = entryType, timestamp = it)) }) }
                 )
             }
         }
