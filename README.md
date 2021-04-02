@@ -2,15 +2,19 @@
 
 Puppy progress tracking app built using Jetpack Compose, based on the Rally sample project.
 
-This sample showcases:
+### Features
+- See how long your pet's been awake, asleep, or since the last toilet break at a glance
+- Track new events with a single tap
+- Record past events easily, or plan upcoming events
 
-* [Material theming][materialtheming]
-* Custom layouts and reusable elements
-* Charts and tables
-* Animations
+### Screenshots
+<p align="left">
+ <img src="https://user-images.githubusercontent.com/10072659/113415265-c302be80-93b6-11eb-8ce9-cef89e36c694.png" width="400" />
+ &nbsp;&nbsp;&nbsp;&nbsp;
+ <img src="https://user-images.githubusercontent.com/10072659/113415550-60f68900-93b7-11eb-892b-18eaf798060c.png" width="400" />
+</p>
 
 Icons made by [Freepik](https://www.freepik.com "Freepik") from [www.flaticon.com](https://www.flaticon.com/ "Flaticon")
-
 
 ## License
 ```
