@@ -18,6 +18,9 @@ class OverviewViewModel(private val repository: EntryRepository) : ViewModel() {
     // - Repository is completely separated from the UI through the ViewModel.
     val allEntries: LiveData<List<Entry>> = repository.allEntries.asLiveData()
 
+    /**
+     * A cheap way to refresh the observation by inserting and removing an entity.
+     */
     fun refreshEntries() {
         val entry = Entry(
             id = UUID.randomUUID().toString(),

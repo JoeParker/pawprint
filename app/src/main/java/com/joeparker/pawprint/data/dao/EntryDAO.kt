@@ -4,6 +4,9 @@ import androidx.room.*
 import com.joeparker.pawprint.data.entity.Entry
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Data Access Object for reading & writing Entries to the database.
+ */
 @Dao
 interface EntryDAO {
     @Query("SELECT * FROM entry ORDER BY timestamp DESC")

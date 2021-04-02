@@ -6,7 +6,7 @@ import java.util.*
 
 class TypeConverters {
     /**
-     * Allow us to store Date() columns in the database
+     * Allow us to store Date() columns in the database.
      */
     @TypeConverter
     fun fromTimestamp(value: Long?): Date? {
@@ -19,7 +19,7 @@ class TypeConverters {
     }
 
     /**
-     * Allow us to store EntryType columns in the database
+     * Allow us to store EntryType columns in the database.
      */
     @TypeConverter
     fun toEntryType(value: String) = enumValueOf<EntryType>(value)

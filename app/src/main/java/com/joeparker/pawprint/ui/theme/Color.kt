@@ -18,6 +18,6 @@ package com.joeparker.pawprint.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Green500 = Color(0xFFDAEFB8)
-val DarkBlue900 = Color(0xFF26282F) // TODO: Confirm literal name
-val MidBlue900 = Color(0xFF383A44)
+val PawPrintGreen = Color(0xFFDAEFB8)
+val PawPrintDarkBlue = Color(0xFF26282F)
+val PawPrintMidBlue = Color(0xFF383A44)

@@ -16,8 +16,6 @@
 
 package com.joeparker.pawprint
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -47,9 +45,8 @@ import com.joeparker.pawprint.data.repository.EntryRepository
 import com.joeparker.pawprint.ui.components.RallyTopAppBar
 import com.joeparker.pawprint.ui.overview.OverviewViewModel
 import com.joeparker.pawprint.ui.overview.OverviewViewModelFactory
-import com.joeparker.pawprint.ui.theme.RallyTheme
+import com.joeparker.pawprint.ui.theme.AppTheme
 import com.joeparker.pawprint.util.Helper
-import java.util.*
 
 /**
  * This Activity recreates part of the Rally Material Study from
@@ -100,9 +97,9 @@ fun RallyApp(
     refresh: () -> Unit,
     selectTime: (EntryType) -> Unit
 ) {
-    RallyTheme {
-        val allScreens = RallyScreen.values().toList()
-        var currentScreen by rememberSaveable { mutableStateOf(RallyScreen.Overview) }
+    AppTheme {
+        val allScreens = PawPrintScreen.values().toList()
+        var currentScreen by rememberSaveable { mutableStateOf(PawPrintScreen.Overview) }
         Scaffold(
             topBar = {
                 RallyTopAppBar(
@@ -125,7 +122,6 @@ fun RallyApp(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                     ) {
-                        //AddEntryButton(addEntry)
                         items(entries) {
                             Spacer(modifier = Modifier.size(8.dp))
                             EntryRow(
@@ -137,7 +133,7 @@ fun RallyApp(
                         item {
                             Spacer(modifier = Modifier.size(16.dp))
                             Box(
-                                modifier = Modifier // TODO move to CustomDivider composable
+                                modifier = Modifier // TODO: move to CustomDivider composable
                                     .fillMaxWidth()
                                     .height(1.dp)
                                     .padding(horizontal = 64.dp)
@@ -147,7 +143,7 @@ fun RallyApp(
                         }
                     }
                 }
-                //currentScreen.content(onScreenChange = { screen -> currentScreen = screen })
+                //currentScreen.content(onScreenChange = { screen -> currentScreen = screen }) // TODO: Implement navigation
             }
         }
     }
@@ -326,6 +322,9 @@ fun EntryRow(entry: Entry, deleteEntry: (Entry) -> Unit, timeDifference: (Entry)
     }
 }
 
+/**
+ * Button for adding a custom Entry (unused).
+ */
 @Composable
 fun AddEntryButton(addEntry: (Entry) -> Unit) {
     var text by remember { mutableStateOf("") }

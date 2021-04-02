@@ -44,13 +44,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.joeparker.pawprint.RallyScreen
+import com.joeparker.pawprint.PawPrintScreen
+import java.util.*
 
 @Composable
 fun RallyTopAppBar(
-    allScreens: List<RallyScreen>,
-    onTabSelected: (RallyScreen) -> Unit,
-    currentScreen: RallyScreen
+    allScreens: List<PawPrintScreen>,
+    onTabSelected: (PawPrintScreen) -> Unit,
+    currentScreen: PawPrintScreen
 ) {
     Surface(
         Modifier
@@ -59,8 +60,8 @@ fun RallyTopAppBar(
     ) {
         Row(Modifier.selectableGroup()) {
             allScreens.forEach { screen ->
-                RallyTab(
-                    text = (if (screen.name == "Overview") screen.name else "Coming Soon").toUpperCase(),
+                Tab(
+                    text = (if (screen.name == "Overview") screen.name else "Coming Soon").toUpperCase(Locale.ROOT),
                     icon = screen.icon,
                     onSelected = { onTabSelected(screen) },
                     selected = currentScreen == screen
@@ -71,7 +72,7 @@ fun RallyTopAppBar(
 }
 
 @Composable
-private fun RallyTab(
+private fun Tab(
     text: String,
     icon: ImageVector,
     onSelected: () -> Unit,

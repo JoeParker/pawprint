@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 class Helper {
     /**
-     * Helper class for general utility functions
+     * Helper class for general utility functions.
      */
     companion object {
         fun pickDateTime(context: Context, onCompletion: (Date) -> Unit) {

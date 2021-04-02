@@ -23,10 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
- * Screen state for Rally. Navigation is kept simple until a proper mechanism is available. Back
+ * Screen state (unused). Navigation is kept simple until a proper mechanism is available. Back
  * navigation is not supported.
  */
-enum class RallyScreen(
+enum class PawPrintScreen(
     val icon: ImageVector,
     private val body: @Composable (() -> Unit)
 ) {

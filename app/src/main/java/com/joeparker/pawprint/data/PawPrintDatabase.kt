@@ -40,7 +40,7 @@ abstract class PawPrintDatabase : RoomDatabase() {
                     "pawprint_database"
                 )
                 .fallbackToDestructiveMigration()
-                .allowMainThreadQueries() // TODO: debug only, disable this
+                .allowMainThreadQueries() // debug
                 .build()
 
                 // Populate dummy data
