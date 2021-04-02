@@ -23,7 +23,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Rally">
+        android:theme="@style/Theme.PawPrint">
         <activity
             android:name=".PawPrintActivity"
             android:windowSoftInputMode="adjustResize"

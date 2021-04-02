@@ -43,11 +43,13 @@ abstract class PawPrintDatabase : RoomDatabase() {
                 .allowMainThreadQueries() // debug
                 .build()
 
-                // Populate dummy data
+                // Populate dummy data (unused)
 //                DataSeeder(
 //                    entryDAO = instance.entryDAO()
 //                )
 //                .seed()
+
+                // TODO: delete all entries older than x days on startup?
 
                 INSTANCE = instance
                 // return instance

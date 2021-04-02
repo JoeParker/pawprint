@@ -48,7 +48,7 @@ import com.joeparker.pawprint.PawPrintScreen
 import java.util.*
 
 @Composable
-fun RallyTopAppBar(
+fun PawPrintTopBar(
     allScreens: List<PawPrintScreen>,
     onTabSelected: (PawPrintScreen) -> Unit,
     currentScreen: PawPrintScreen
